@@ -20,7 +20,7 @@ public class Clock extends Application {
         Canvas canvas = new Canvas(SIZE, SIZE);
         GraphicsContext gc = canvas.getGraphicsContext2D();
 
-        drawRectangle(gc);
+        drawOutside(gc);
         drawCircle(gc);
         drawClockHands(gc); // Initial draw of clock hands
 
@@ -29,7 +29,7 @@ public class Clock extends Application {
             @Override
             public void handle(long now) {
                 gc.clearRect(0, 0, SIZE, SIZE); // Clear the canvas
-                drawRectangle(gc);
+                drawOutside(gc);
                 drawCircle(gc);
                 drawClockHands(gc); // Redraw clock hands
             }
@@ -44,7 +44,7 @@ public class Clock extends Application {
     }
 
 
-    private void drawRectangle(GraphicsContext gc) {
+    private void drawOutside(GraphicsContext gc) {
         gc.setStroke(javafx.scene.paint.Color.BLACK);
         gc.setLineWidth(2);
         double x = (double) (SIZE - SQUARE_WIDTH) / 2; // Центрируем прямоугольник по горизонтали
@@ -52,8 +52,8 @@ public class Clock extends Application {
         gc.strokeRect(x, y, SQUARE_WIDTH, SQUARE_HEIGHT); // Рисуем первый прямоугольник
 
         // Рисуем две вертикальные линии на нижней линии прямоугольника
-        double lineX1 = x + SQUARE_WIDTH / 6; // Первая линия на 1/6 ширины
-        double lineX2 = x + 5 * SQUARE_WIDTH / 6; // Вторая линия на 5/6 ширины
+        double lineX1 = x + (double) SQUARE_WIDTH / 6; // Первая линия на 1/6 ширины
+        double lineX2 = x + (double) (5 * SQUARE_WIDTH) / 6; // Вторая линия на 5/6 ширины
         double lineY = y + SQUARE_HEIGHT; // Нижняя граница прямоугольника
         double lineLength = 40; // Длина вертикальных линий
         gc.setLineWidth(1); // Устанавливаем ширину линии
@@ -133,12 +133,29 @@ public class Clock extends Application {
         // Часовая стрелка
         gc.setStroke(javafx.scene.paint.Color.BLACK);
         gc.setLineWidth(2);
-        gc.strokeLine(centerX, centerY, centerX + (RADIUS - 40) * Math.cos(hourAngle - Math.PI / 2), centerY + (RADIUS - 40) * Math.sin(hourAngle - Math.PI / 2));
+        gc.strokeLine(centerX, centerY, centerX + (RADIUS - 30) * Math.cos(hourAngle - Math.PI / 2), centerY + (RADIUS - 30) * Math.sin(hourAngle - Math.PI / 2));
 
         // Минутная стрелка
         gc.setStroke(javafx.scene.paint.Color.BLACK);
         gc.setLineWidth(2);
-        gc.strokeLine(centerX, centerY, centerX + (RADIUS - 20) * Math.cos(minuteAngle - Math.PI / 2), centerY + (RADIUS - 20) * Math.sin(minuteAngle - Math.PI / 2));
+        double minuteEndX = centerX + (RADIUS - 20) * Math.cos(minuteAngle - Math.PI / 2);
+        double minuteEndY = centerY + (RADIUS - 20) * Math.sin(minuteAngle - Math.PI / 2);
+        gc.strokeLine(centerX, centerY, minuteEndX, minuteEndY);
+
+        // Рисуем треугольник на минутной стрелке
+        double triangleSize = 10; // Размер треугольника
+        double triangleOffset = 5; // Смещение от конца минутной стрелки
+
+        // Увеличиваем координаты конца минутной стрелки с учетом смещения
+        double triangleX1 = minuteEndX + triangleOffset * Math.cos(minuteAngle - Math.PI / 2);
+        double triangleY1 = minuteEndY + triangleOffset * Math.sin(minuteAngle - Math.PI / 2);
+        double triangleX2 = triangleX1 - triangleSize * Math.cos(minuteAngle - Math.PI / 2 + Math.PI / 6);
+        double triangleY2 = triangleY1 - triangleSize * Math.sin(minuteAngle - Math.PI / 2 + Math.PI / 6);
+        double triangleX3 = triangleX1 - triangleSize * Math.cos(minuteAngle - Math.PI / 2 - Math.PI / 6);
+        double triangleY3 = triangleY1 - triangleSize * Math.sin(minuteAngle - Math.PI / 2 - Math.PI / 6);
+
+        gc.setFill(javafx.scene.paint.Color.BLACK);
+        gc.fillPolygon(new double[]{triangleX1, triangleX2, triangleX3}, new double[]{triangleY1, triangleY2, triangleY3}, 3);
 
         // Секундная стрелка
         gc.setStroke(javafx.scene.paint.Color.BLACK);
